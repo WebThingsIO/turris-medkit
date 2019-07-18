@@ -1,0 +1,25 @@
+# This file is run on the first boot of the system and then removed
+#
+# This particular file is named z-moziot-defaults so that it gets run
+# after resolver-defaults
+
+# Make the default turris server run on ports 81 & 444
+sed -i -e 's/#server.port/server.port/' -e 's/:80/:81/' /etc/lighttpd/lighttpd.conf
+sed -i -e 's/:443/:444/' /etc/lighttpd/conf.d/ssl-enable.conf
+
+# Set the hostname to be gateway
+uci set system.@system[0].hostname='gateway'
+uci commit system
+/etc/init.d/system reload
+
+# Disable kresd - Turris uses this resolver by default
+/etc/init.d/resolver disable
+/etc/init.d/resolver stop
+
+# Re-enable dnsmasq for DNS
+uci delete dhcp.@dnsmasq[0].port
+uci commit dhcp
+
+# Enable & start the gateway
+/etc/init.d/mozilla-iot-gateway enable
+/etc/init.d/mozilla-iot-gateway start
