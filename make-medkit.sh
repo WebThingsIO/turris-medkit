@@ -1,8 +1,10 @@
 #!/bin/bash
 
-GATEWAY_VERSION='0.9.0'
-PKG_RELEASE='3'
+GATEWAY_VERSION='0.9.3'
+PKG_RELEASE='1'
 MEDKIT_NAME="omnia-medkit-moziot-${GATEWAY_VERSION}-${PKG_RELEASE}.tar.gz"
+
+BRANCH="hbd"
 
 V8_VERSION='57'
 ARCHITECTURE='openwrt-linux-arm_cortex-a9_vfpv3'
@@ -11,9 +13,10 @@ ADDON_API='2'
 ADDON_LIST_URL='https://api.mozilla-iot.org:8443/addons'
 PARAMS="?api=${ADDON_API}&arch=${ARCHITECTURE}&node=${V8_VERSION}&python=${PYTHON_VERSIONS}&version=${GATEWAY_VERSION}"
 MOZIOT_HOME="/srv/mozilla-iot-home"
-OVERLAY_DIR="../overlay"
+OVERLAY_DIR="overlay"
 ADDONS_DIR="${OVERLAY_DIR}${MOZIOT_HOME}/addons"
 TEMP_DIR="tmp"
+MEDKIT_DIR="medkit"
 
 ###########################################################################
 #
@@ -65,4 +68,7 @@ install_addon "${addon_list}" 'thing-url-adapter'
 
 # Go and make the medkit
 echo "Creating medkit ..."
-../../generate_medkit -t omnia -b hbs --updater-script ../moziot.lua -l en --sign ../moziot-openwrt-sign.key --overlay ${OVERLAY_DIR} ${MEDKIT_NAME}
+mkdir -p ${MEDKIT_DIR}
+( cd ${MEDKIT_DIR}; \
+  ../../generate_medkit -t omnia -b ${BRANCH} --updater-script ../moziot.lua -l en --sign ../moziot-openwrt-sign.key --overlay ../${OVERLAY_DIR} ${MEDKIT_NAME}; \
+)
